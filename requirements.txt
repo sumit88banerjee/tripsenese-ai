@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+requests
+python-dotenv
+google-cloud-storage
+google-cloud-bigquery
+db-dtypes
+plotly
+scikit-learn
