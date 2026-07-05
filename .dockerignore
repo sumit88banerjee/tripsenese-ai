@@ -3,3 +3,15 @@
 __pycache__
 *.pyc
 .git
+.gitignore
+# Keep raw API/cache data out of container
+data/raw/
+
+# Keep processed CSV files inside the container
+# Streamlit reads these files:
+# data/processed/all_cities_places_clean.csv
+# data/processed/place_news_summary.csv
+# data/processed/city_weather_summary.csv
+
+*.log
+.DS_Store

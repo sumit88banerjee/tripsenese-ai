@@ -26,7 +26,11 @@ def load_csv_to_table(csv_path: str, table_name: str) -> None:
         write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
     )
 
-    with open(csv_path, "rb") as source_file:
+    path = Path(csv_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Missing {csv_path}. Run scripts/ingest_news.py first.")
+
+    with open(path, "rb") as source_file:
         job = client.load_table_from_file(source_file, table_id, job_config=job_config)
 
     job.result()
@@ -35,7 +39,8 @@ def load_csv_to_table(csv_path: str, table_name: str) -> None:
 
 
 def main() -> None:
-    load_csv_to_table("data/processed/all_places_clean.csv", "places")
+    load_csv_to_table("data/processed/all_place_news.csv", "place_news")
+    load_csv_to_table("data/processed/all_place_news_summary.csv", "place_news_summary")
 
 
 if __name__ == "__main__":
