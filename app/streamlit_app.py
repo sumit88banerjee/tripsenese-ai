@@ -208,9 +208,16 @@ news_summary_path = first_existing_path(
 
 weather_summary_path = ROOT / "data" / "processed" / "city_weather_summary.csv"
 
+gpu_ranked_path = ROOT / "data" / "processed" / "top_places_news_weather_aware_gpu.csv"
+normal_ranked_path = ROOT / "data" / "processed" / "top_places_news_weather_aware.csv"
+
 
 st.title("TripSense AI")
 st.subheader("Google Cloud + NVIDIA Accelerated Local Travel, Food, News & Advanced Weather Planner")
+st.info(
+    "NVIDIA acceleration layer: TripSense AI uses RAPIDS cuDF/cudf.pandas "
+    "to accelerate tabular joins, scoring, weather/news penalties, and ranking."
+)
 
 if places_path is None:
     st.error(
@@ -611,10 +618,27 @@ if st.button("Generate itinerary"):
 
 st.header("Top ranked places")
 
-scored_df = score_places(
-    city_places_df,
-    budget_type=budget_type,
-)
+if gpu_ranked_path.exists():
+    ranked_df = load_csv(str(gpu_ranked_path))
+    acceleration_label = "NVIDIA RAPIDS cuDF accelerated ranking"
+elif normal_ranked_path.exists():
+    ranked_df = load_csv(str(normal_ranked_path))
+    acceleration_label = "CPU pandas pre-ranked output"
+else:
+    ranked_df = score_places(
+        city_places_df,
+        budget_type=budget_type,
+    )
+    acceleration_label = "CPU pandas live ranking"
+
+st.caption(f"Acceleration layer: {acceleration_label}")
+
+if "city" in ranked_df.columns:
+    scored_df = ranked_df[
+        ranked_df["city"].apply(normalize_city) == normalize_city(city)
+    ].copy()
+else:
+    scored_df = ranked_df.copy()
 
 display_columns = [
     "name",

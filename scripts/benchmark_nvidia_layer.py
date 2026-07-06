@@ -8,6 +8,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from src.gpu_accel import install_gpu_acceleration
 ACCELERATION_MODE = install_gpu_acceleration()
 
+import csv
 import numpy as np
 import pandas as pd
 
@@ -76,7 +77,10 @@ def main():
     output_path = Path("data/processed/nvidia_benchmark_results.csv")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    pd.DataFrame([result]).to_csv(output_path, index=False)
+    with output_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(result.keys()))
+        writer.writeheader()
+        writer.writerow(result)
 
     print(result)
     print(f"Saved benchmark result to {output_path}")

@@ -1,0 +1,2 @@
+acceleration_mode,original_rows,benchmark_rows,result_rows,elapsed_seconds
+cpu-pandas,252,1260000,40,2.3245

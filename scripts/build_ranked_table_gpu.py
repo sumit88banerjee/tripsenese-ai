@@ -106,7 +106,15 @@ def main():
     ranked = build_ranked_table()
 
     output_path = DATA_DIR / "top_places_news_weather_aware_gpu.csv"
-    ranked.to_csv(output_path, index=False)
+    # Avoid cuDF/KvikIO GPU CSV writer instability on WSL.
+    # Ranking still runs with cudf.pandas when TRIPSENSE_USE_GPU=true,
+    # but final CSV serialization is moved back to CPU pandas.
+    try:
+        ranked_for_output = ranked.to_pandas()
+    except AttributeError:
+        ranked_for_output = ranked
+
+    ranked_for_output.to_csv(output_path, index=False)
 
     elapsed = time.perf_counter() - start
 
